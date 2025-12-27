@@ -10,21 +10,26 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.BackHand
 import androidx.compose.material.icons.outlined.Close
 import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonColors
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.SheetState
 import androidx.compose.material3.Text
+import androidx.compose.material3.rememberStandardBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Alignment.Companion.TopStart
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
@@ -32,6 +37,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -39,12 +45,14 @@ import coil.compose.AsyncImage
 import com.plum.superheroapp.R
 import com.plum.superheroapp.domain.entity.HeroDomainEntity
 import com.plum.superheroapp.presentation.ui.screen.composables.LoadingBox
+import com.plum.superheroapp.presentation.ui.screen.details.HeroDetailsScreenConstants.Companion.FIRE_BUTTON
+import com.plum.superheroapp.presentation.ui.screen.details.HeroDetailsScreenConstants.Companion.MESSAGE_BOTTOM_SHEET
 import com.plum.superheroapp.presentation.ui.screen.details.HeroDetailsScreenConstants.Companion.UPDATE_SQUAD_MEMBER_BUTTON
 import com.plum.superheroapp.presentation.ui.theme.SuperheroappTheme
 import com.plum.superheroapp.presentation.ui.theme.contentSize12
+import com.plum.superheroapp.presentation.ui.theme.contentSize15
 import com.plum.superheroapp.presentation.ui.theme.contentSize2
 import com.plum.superheroapp.presentation.ui.theme.contentSize4
-import com.plum.superheroapp.presentation.ui.theme.contentSpacing2
 import com.plum.superheroapp.presentation.ui.theme.contentSpacing4
 import com.plum.superheroapp.presentation.ui.theme.contentSpacing6
 
@@ -86,12 +94,17 @@ fun HeroDetailsScreen(
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun HeroDetailsContent(
     hero: HeroDomainEntity,
     navigateBack: () -> Unit,
     updateSquadMember: (HeroDomainEntity) -> Unit
 ) {
+    var showWarningMessage by remember {
+        mutableStateOf(false)
+    }
+    val sheetState = rememberStandardBottomSheetState()
 
     Column(
         modifier = Modifier.fillMaxSize()
@@ -128,17 +141,34 @@ private fun HeroDetailsContent(
 
 
         UpdateSquadMemberButton(
-            onClick = { updateSquadMember(hero) },
+            onClick = {
+                if (hero.isSquadMember)
+                    showWarningMessage = true
+                else
+                    updateSquadMember(hero)
+                      },
             isSquadMember = hero.isSquadMember
         )
 
         Spacer(modifier = Modifier.height(contentSpacing6))
 
         HeroDetailsContainer(hero)
+
+
+        if (showWarningMessage) {
+             WarningMessage(
+                 onDismissRequest = { showWarningMessage = false },
+                 sheetState = sheetState,
+                 hero = hero,
+                 updateSquadMember = updateSquadMember
+             )
+        }
         
     }
 
 }
+
+
 
 @Composable
 private fun BackButton(
@@ -232,6 +262,57 @@ private fun UpdateSquadMemberButton(
 }
 
 
+@Composable
+@OptIn(ExperimentalMaterial3Api::class)
+private fun WarningMessage(
+    onDismissRequest: () -> Unit,
+    sheetState: SheetState,
+    hero: HeroDomainEntity,
+    updateSquadMember: (HeroDomainEntity) -> Unit
+) {
+    ModalBottomSheet(
+        onDismissRequest = onDismissRequest,
+        sheetState = sheetState,
+        modifier = Modifier.testTag(MESSAGE_BOTTOM_SHEET)
+    ) {
+
+        Column(
+            modifier = Modifier.padding(contentSpacing4),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+
+            Text(
+                text = stringResource(R.string.are_you_sure, hero.name),
+                modifier = Modifier.fillMaxWidth(0.6f),
+                textAlign = TextAlign.Center,
+                fontWeight = FontWeight.W500
+            )
+
+            Spacer(modifier = Modifier.height(contentSize15))
+
+            Button(
+                onClick = {
+                    updateSquadMember(hero)
+                    onDismissRequest()
+                },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(contentSize12)
+                    .testTag(FIRE_BUTTON),
+                shape = RoundedCornerShape(contentSize2),
+                colors = ButtonDefaults.buttonColors().copy(
+                    containerColor = MaterialTheme.colorScheme.error
+                )
+            ) {
+                Text(
+                    text = stringResource(R.string.fire, hero.name),
+                    fontWeight = FontWeight.W500
+                )
+            }
+        }
+    }
+}
+
 @Preview
 @Composable
 private fun HeroDetailsScreenPreview() {
@@ -261,5 +342,8 @@ private fun HeroDetailsScreenPreview() {
 class HeroDetailsScreenConstants private constructor() {
     companion object {
         const val UPDATE_SQUAD_MEMBER_BUTTON = "update_squad_member_button"
+        const val MESSAGE_BOTTOM_SHEET = "message_bottom_sheet"
+
+        const val  FIRE_BUTTON = "fire_button"
     }
 }

@@ -3,10 +3,12 @@
     <string name="hero_squad_maker">Superhero Squad Maker</string>
     <string name="my_squad">"My Squad"</string>
     <string name="fire_from_squad">🔥  Fire from Squad</string>
+    <string name="fire">🔥  Fire %s</string>
     <string name="hide_to_squad">💪  Hire to Squad</string>
     <string name="films">Films:</string>
     <string name="tv_shows">Tv Shows:</string>
     <string name="video_games">Video Games:</string>
     <string name="allies">Allies:</string>
     <string name="enemies">Enemies:</string>
+    <string name="are_you_sure">Are you sure you want to fire %s ?</string>
 </resources>

@@ -1,5 +1,6 @@
 package com.plum.superheroapp.presentation.ui.screen
 
+import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performClick
@@ -8,6 +9,8 @@ import com.plum.superheroapp.presentation.DummyEntities
 import com.plum.superheroapp.presentation.hero
 import com.plum.superheroapp.presentation.ui.screen.details.HeroDetailsEvent
 import com.plum.superheroapp.presentation.ui.screen.details.HeroDetailsScreen
+import com.plum.superheroapp.presentation.ui.screen.details.HeroDetailsScreenConstants.Companion.FIRE_BUTTON
+import com.plum.superheroapp.presentation.ui.screen.details.HeroDetailsScreenConstants.Companion.MESSAGE_BOTTOM_SHEET
 import com.plum.superheroapp.presentation.ui.screen.details.HeroDetailsScreenConstants.Companion.UPDATE_SQUAD_MEMBER_BUTTON
 import com.plum.superheroapp.presentation.ui.screen.details.HeroDetailsState
 import com.plum.superheroapp.presentation.ui.screen.details.HeroDetailsViewModel
@@ -68,9 +71,65 @@ class HeroDetailsScreenTest {
     }
 
 
+    @Test
+    fun onContentState_whenUpdateButtonIsClicked_showsWarningMessage() {
+        whenever(viewModel.uiState)
+            .thenReturn(MutableStateFlow(
+                defaultContent.copy(hero.copy(isSquadMember = true)))
+            )
+
+        composeTestRule.setContent {
+            SuperheroappTheme {
+                HeroDetailsScreen(
+                    viewModel = viewModel,
+                    navigateBack = {}
+                )
+            }
+        }
+
+        composeTestRule.onNodeWithTag(UPDATE_SQUAD_MEMBER_BUTTON)
+            .performClick()
+
+
+        composeTestRule.onNodeWithTag(MESSAGE_BOTTOM_SHEET)
+            .assertIsDisplayed()
+
+    }
+
+
+    @Test
+    fun onContentState_whenFireButtonIsClicked_addsUpdateSquadMember() {
+        val hero = defaultContent.hero.copy(isSquadMember = true)
+
+        whenever(viewModel.uiState)
+            .thenReturn(MutableStateFlow(
+                defaultContent.copy(hero))
+            )
+
+        composeTestRule.setContent {
+            SuperheroappTheme {
+                HeroDetailsScreen(
+                    viewModel = viewModel,
+                    navigateBack = {}
+                )
+            }
+        }
+
+        composeTestRule.onNodeWithTag(UPDATE_SQUAD_MEMBER_BUTTON)
+            .performClick()
+
+
+        composeTestRule.onNodeWithTag(FIRE_BUTTON)
+            .performClick()
+
+        verify(viewModel).add(HeroDetailsEvent.UpdateSquadMember(hero))
+    }
+
+
     companion object {
+        val hero = DummyEntities.hero
         val defaultContent = HeroDetailsState.Content(
-            hero = DummyEntities.hero
+            hero = hero
         )
     }
 }
