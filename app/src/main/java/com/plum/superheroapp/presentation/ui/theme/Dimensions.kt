@@ -29,4 +29,5 @@ val contentSize6 = 24.dp
 val contentSize10 = 40.dp
 val contentSize12 = 48.dp
 val contentSize15 = 60.dp
+val contentSize16 = 64.dp
 val contentSize25 = 100.dp

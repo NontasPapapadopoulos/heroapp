@@ -2,7 +2,6 @@ package com.plum.superheroapp.presentation.ui.screen.details
 
 import android.widget.Toast
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -17,6 +16,8 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.BackHand
 import androidx.compose.material.icons.outlined.Close
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonColors
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -28,16 +29,18 @@ import androidx.compose.ui.Alignment.Companion.TopStart
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.AsyncImage
+import com.plum.superheroapp.R
 import com.plum.superheroapp.domain.entity.HeroDomainEntity
-import com.plum.superheroapp.presentation.navigation.HeroDetailsScreen
 import com.plum.superheroapp.presentation.ui.screen.composables.LoadingBox
-import com.plum.superheroapp.presentation.ui.screen.heroes.Hero
+import com.plum.superheroapp.presentation.ui.screen.details.HeroDetailsScreenConstants.Companion.UPDATE_SQUAD_MEMBER_BUTTON
 import com.plum.superheroapp.presentation.ui.theme.SuperheroappTheme
-import com.plum.superheroapp.presentation.ui.theme.contentSize10
 import com.plum.superheroapp.presentation.ui.theme.contentSize12
 import com.plum.superheroapp.presentation.ui.theme.contentSize2
 import com.plum.superheroapp.presentation.ui.theme.contentSize4
@@ -72,7 +75,8 @@ fun HeroDetailsScreen(
         is HeroDetailsState.Content -> {
             HeroDetailsContent(
                 hero = state.hero,
-                navigateBack = navigateBack
+                navigateBack = navigateBack,
+                updateSquadMember = { viewModel.add(HeroDetailsEvent.UpdateSquadMember(it)) }
             )
         }
 
@@ -85,7 +89,8 @@ fun HeroDetailsScreen(
 @Composable
 private fun HeroDetailsContent(
     hero: HeroDomainEntity,
-    navigateBack: () -> Unit
+    navigateBack: () -> Unit,
+    updateSquadMember: (HeroDomainEntity) -> Unit
 ) {
 
     Column(
@@ -122,8 +127,9 @@ private fun HeroDetailsContent(
         )
 
 
-        HireButton(
-            onClick = {}
+        UpdateSquadMemberButton(
+            onClick = { updateSquadMember(hero) },
+            isSquadMember = hero.isSquadMember
         )
 
         Spacer(modifier = Modifier.height(contentSpacing6))
@@ -161,68 +167,67 @@ private fun HeroDetailsContainer(
     Column(
         modifier = Modifier.padding(horizontal = contentSpacing4)
     ) {
-        if (hero.films.isNotEmpty()) {
+        if (hero.films.any { it.isNotEmpty() }) {
             Text(
-                text = "Films: ${hero.films.joinToString(", ")}"
+                text = "${stringResource(R.string.films)} ${hero.films.joinToString(", ")}"
             )
         }
 
-        if (hero.tvShows.isNotEmpty()) {
+        if (hero.tvShows.any { it.isNotEmpty()}) {
             Text(
-                text = "Tv Shows: ${hero.tvShows.joinToString(", ")}"
+                text = "${stringResource(R.string.tv_shows)} ${hero.tvShows.joinToString(", ")}"
             )
         }
 
-        if (hero.videoGames.isNotEmpty()) {
+        if (hero.videoGames.any{ it.isNotEmpty() }) {
             Text(
-                text = "Video Games: ${hero.videoGames.joinToString(", ")}"
+                text = "${stringResource(R.string.video_games)} ${hero.videoGames.joinToString(", ")}"
             )
         }
 
-        if (hero.allies.isNotEmpty()) {
+        if (hero.allies.any { it.isNotEmpty() }) {
             Text(
-                text = "Allies: ${hero.allies.joinToString(", ")}"
+                text = "${stringResource(R.string.allies)} ${hero.allies.joinToString(", ")}"
             )
         }
 
-        if (hero.enemies.isNotEmpty()) {
+        if (hero.enemies.any { it.isNotEmpty() }) {
             Text(
-                text = "Enemies: ${hero.enemies.joinToString(", ")}"
+                text = "${stringResource(R.string.enemies)}: ${hero.enemies.joinToString(", ")}"
             )
         }
     }
 }
 
-@Composable
-private fun HeroDetail(
-    label: String,
-    details: List<String>
-) {
-    Text(
-        text = "$label: ${details.joinToString(", ")}"
-    )
-}
-
 
 @Composable
-private fun HireButton(
-    onClick: () -> Unit
+private fun UpdateSquadMemberButton(
+    onClick: () -> Unit,
+    isSquadMember: Boolean
 ) {
+
+    val containerColor = if (isSquadMember) MaterialTheme.colorScheme.error
+    else MaterialTheme.colorScheme.primary
+
+    val text = if (isSquadMember) stringResource(R.string.fire_from_squad)
+    else stringResource(R.string.hide_to_squad)
+
 
     Button(
         onClick = onClick,
         modifier = Modifier.fillMaxWidth()
-            .padding(horizontal = contentSize4),
-        shape = RoundedCornerShape(contentSize2)
-    ) {
-        Icon(
-            imageVector = Icons.Outlined.BackHand,
-            contentDescription = null
+            .height(contentSize12)
+            .padding(horizontal = contentSize4)
+            .testTag(UPDATE_SQUAD_MEMBER_BUTTON),
+        shape = RoundedCornerShape(contentSize2),
+        colors = ButtonDefaults.buttonColors().copy(
+            containerColor = containerColor
         )
-
-        Spacer(modifier = Modifier.width(contentSpacing2))
-
-        Text("Hire to Squad")
+    ) {
+        Text(
+            text = text,
+            fontWeight = FontWeight.W500
+        )
     }
 }
 
@@ -233,6 +238,7 @@ private fun HeroDetailsScreenPreview() {
     SuperheroappTheme {
         HeroDetailsContent(
             navigateBack = {},
+            updateSquadMember = {},
             hero = HeroDomainEntity(
                 id = 16,
                 allies = emptyList(),
@@ -248,5 +254,12 @@ private fun HeroDetailsScreenPreview() {
                 isSquadMember = false
             )
         )
+    }
+}
+
+
+class HeroDetailsScreenConstants private constructor() {
+    companion object {
+        const val UPDATE_SQUAD_MEMBER_BUTTON = "update_squad_member_button"
     }
 }

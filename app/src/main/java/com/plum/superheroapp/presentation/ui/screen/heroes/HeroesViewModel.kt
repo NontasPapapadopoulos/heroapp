@@ -18,7 +18,7 @@ import kotlinx.coroutines.flow.stateIn
 import javax.inject.Inject
 
 @HiltViewModel
-class HeroesViewModel @Inject constructor(
+open class HeroesViewModel @Inject constructor(
     private val getHeroes: GetHeroes,
     private val getSquad: GetSquad,
     private val fetchHeroes: FetchHeroes
@@ -45,7 +45,7 @@ class HeroesViewModel @Inject constructor(
     override val _uiState: StateFlow<HeroesState> = combine(
         heroesFlow.onStart { emit(listOf()) },
         squadFlow.onStart { emit(listOf()) },
-        fetchHeroesFlow
+        fetchHeroesFlow.onStart { emit(Unit) }
     ) { heroes, squad, _ ->
 
         HeroesState.Content(

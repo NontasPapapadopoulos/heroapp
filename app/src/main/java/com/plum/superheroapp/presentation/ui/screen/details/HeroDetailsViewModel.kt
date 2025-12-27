@@ -19,7 +19,7 @@ import javax.inject.Inject
 
 
 @HiltViewModel
-class HeroDetailsViewModel @Inject constructor(
+open class HeroDetailsViewModel @Inject constructor(
     private val getHero: GetHero,
     private val updateHero: UpdateHero,
     private val savedStateHandle: SavedStateHandle

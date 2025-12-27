@@ -29,17 +29,27 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.AsyncImage
+import com.plum.superheroapp.R
 import com.plum.superheroapp.presentation.ui.screen.composables.LoadingBox
+import com.plum.superheroapp.presentation.ui.screen.heroes.HeroesScreenConstants.Companion.HERO
+import com.plum.superheroapp.presentation.ui.screen.heroes.HeroesScreenConstants.Companion.SQUAD
 import com.plum.superheroapp.presentation.ui.theme.SuperheroappTheme
 import com.plum.superheroapp.presentation.ui.theme.contentSize10
 import com.plum.superheroapp.presentation.ui.theme.contentSize15
+import com.plum.superheroapp.presentation.ui.theme.contentSize16
+import com.plum.superheroapp.presentation.ui.theme.contentSpacing1
+import com.plum.superheroapp.presentation.ui.theme.contentSpacing2
 import com.plum.superheroapp.presentation.ui.theme.contentSpacing4
 import com.plum.superheroapp.presentation.ui.theme.contentSpacing5
 import com.plum.superheroapp.presentation.ui.theme.contentSpacing6
@@ -62,15 +72,22 @@ fun HeroesScreen(
         }
     }
 
+    LaunchedEffect(Unit) {
+        viewModel.navigationFlow.collect { target ->
+            if (target is NavigationTarget.HeroDetails)
+                navigateToHeroDetailsScreen(target.id)
+        }
+    }
+
+
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
     when (val state = uiState) {
-
         is HeroesState.Content -> {
             HeroesContent(
                 squad = state.squad,
                 heroes = state.heroes,
-                navigateToHeroDetails = navigateToHeroDetailsScreen
+                navigateToHeroDetails = { viewModel.add(HeroesEvent.SelectHero(it)) }
             )
         }
 
@@ -95,9 +112,9 @@ private fun HeroesContent(
             TopAppBar(
                 title = {
                     Text(
-                        text = "Superhero Squad Maker",
+                        text = stringResource(R.string.hero_squad_maker),
                         color = MaterialTheme.colorScheme.onPrimary,
-                        fontWeight = FontWeight.Bold,
+                        fontWeight = FontWeight.W500,
                         style = MaterialTheme.typography.titleLarge
                     )
                 },
@@ -115,11 +132,14 @@ private fun HeroesContent(
         ) {
             if (squad.isNotEmpty()) {
                 Text(
-                    text = "My Squad",
+                    text = stringResource(R.string.my_squad),
                     style = MaterialTheme.typography.titleLarge,
-                    fontWeight = FontWeight.Bold
+                    fontWeight = FontWeight.W500
                 )
 
+                Spacer(
+                    modifier = Modifier.height(contentSpacing2)
+                )
 
                 Squad(
                     squad = squad,
@@ -178,21 +198,32 @@ private fun SquadMember(
 
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
-        modifier = Modifier.clickable {
-            navigateToHeroDetails(hero.id)
-        }
+        modifier = Modifier
+            .padding(horizontal = contentSpacing1)
+            .width(contentSize16)
+            .clickable {
+                navigateToHeroDetails(hero.id)
+             }
+            .testTag(SQUAD+hero.id)
     ) {
 
         hero.image?.let {
             HeroImage(
                 url = hero.image,
-                size = contentSize15
+                size = contentSize16
             )
         }
 
+        Spacer(
+            modifier = Modifier.height(contentSpacing1)
+        )
+
 
         Text(
-            text = hero.name
+            text = hero.name,
+            textAlign = TextAlign.Center,
+            maxLines = 2,
+            overflow = TextOverflow.Ellipsis
         )
     }
 
@@ -210,14 +241,15 @@ private fun HeroItem(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(vertical = contentSpacing4)
-                .clickable { onHeroClicked(hero.id) },
+                .clickable { onHeroClicked(hero.id) }
+                .testTag(HERO+hero.id),
             verticalAlignment = Alignment.CenterVertically
         ) {
 
             hero.image?.let {
                 HeroImage(
                     url = hero.image,
-                    size = contentSize15
+                    size = contentSize10
                 )
             }
 
@@ -340,4 +372,11 @@ private fun getHeroes(): List<Hero> {
             image = "https://static.wikia.nocookie.net/disney/images/3/3a/Abdullah.jpg"
         )
     )
+}
+
+class HeroesScreenConstants private constructor() {
+    companion object {
+        const val HERO = "hero"
+        const val SQUAD = "squad"
+    }
 }
