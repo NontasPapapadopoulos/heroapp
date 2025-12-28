@@ -55,6 +55,7 @@ import com.plum.superheroapp.presentation.ui.theme.SuperheroappTheme
 import com.plum.superheroapp.presentation.ui.theme.contentSize10
 import com.plum.superheroapp.presentation.ui.theme.contentSize15
 import com.plum.superheroapp.presentation.ui.theme.contentSize16
+import com.plum.superheroapp.presentation.ui.theme.contentSize4
 import com.plum.superheroapp.presentation.ui.theme.contentSpacing1
 import com.plum.superheroapp.presentation.ui.theme.contentSpacing2
 import com.plum.superheroapp.presentation.ui.theme.contentSpacing4
@@ -259,6 +260,8 @@ private fun HeroItem(
     hero: Hero,
     onHeroClicked: (Int) -> Unit
 ) {
+    val imageSize = contentSize10
+    val spaceSize = contentSize4
 
     Column {
         Row(
@@ -273,7 +276,7 @@ private fun HeroItem(
             hero.image?.let {
                 HeroImage(
                     url = hero.image,
-                    size = contentSize10
+                    size = imageSize
                 )
             }
 
@@ -284,12 +287,12 @@ private fun HeroItem(
                 text = hero.name,
             )
 
-            Spacer(modifier = Modifier.height(contentSpacing4))
+            Spacer(modifier = Modifier.height(spaceSize))
 
         }
 
         HorizontalDivider(
-            modifier = Modifier.padding(start = contentSize15 + contentSpacing4)
+            modifier = Modifier.padding(start = imageSize + spaceSize)
         )
 
     }
@@ -339,21 +342,7 @@ private fun getSquad(): List<Hero> {
             name = "Prince Achmed",
             image = "https://static.wikia.nocookie.net/disney/images/7/76/Aladdin-disneyscreencaps.com-1123.jpg"
         ),
-        Hero(
-            id = 44,
-            name = "Adira",
-            image = "https://static.wikia.nocookie.net/disney/images/f/fa/Adira_Tangled.jpeg"
-        ),
-        Hero(
-            id = 43,
-            name = "Adelbert's Father",
-            image = "https://static.wikia.nocookie.net/disney/images/b/b2/Profile-_Adelbert%27s_Father.jpeg"
-        ),
-        Hero(
-            id = 13,
-            name = "A.B.E.",
-            image = "https://static.wikia.nocookie.net/disney/images/2/20/ABE.jpg"
-        )
+
     )
 }
 
@@ -369,31 +358,7 @@ private fun getHeroes(): List<Hero> {
             name = ".GIFfany",
             image = "https://static.wikia.nocookie.net/disney/images/5/51/Giffany.png"
         ),
-        Hero(
-            id = 10,
-            name = "627",
-            image = "https://static.wikia.nocookie.net/disney/images/8/80/Profile_-_627.png"
-        ),
-        Hero(
-            id = 12,
-            name = "90's Adventure Bear",
-            image = "https://static.wikia.nocookie.net/disney/images/3/3f/90%27s_Adventure_Bear_profile.png"
-        ),
-        Hero(
-            id = 13,
-            name = "A.B.E.",
-            image = "https://static.wikia.nocookie.net/disney/images/2/20/ABE.jpg"
-        ),
-        Hero(
-            id = 15,
-            name = "A.R.F.",
-            image = "https://static.wikia.nocookie.net/disney/images/b/ba/A.R.F.png"
-        ),
-        Hero(
-            id = 16,
-            name = "Abdullah",
-            image = "https://static.wikia.nocookie.net/disney/images/3/3a/Abdullah.jpg"
-        )
+
     )
 }
 
