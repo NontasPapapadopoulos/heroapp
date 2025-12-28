@@ -41,10 +41,12 @@ class HeroDataRepositoryTest {
 
     @Test
     fun fetchHeroesTest() = runTest {
-        whenever(remoteDataSource.getHeroes())
+        whenever(localDataSource.numberOfHeroes()).thenReturn(0)
+
+        whenever(remoteDataSource.getHeroes(1))
             .thenReturn(heroesNetworkEntities)
 
-        heroDataRepository.fetchHeroes()
+        heroDataRepository.fetchHeroes(1)
 
         verify(localDataSource).addHeroes(heroesNetworkEntities.map { it.toData() })
     }

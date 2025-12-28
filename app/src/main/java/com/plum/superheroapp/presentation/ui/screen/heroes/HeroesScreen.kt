@@ -12,7 +12,10 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
@@ -24,6 +27,11 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -36,7 +44,6 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
-import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.AsyncImage
@@ -52,7 +59,6 @@ import com.plum.superheroapp.presentation.ui.theme.contentSpacing1
 import com.plum.superheroapp.presentation.ui.theme.contentSpacing2
 import com.plum.superheroapp.presentation.ui.theme.contentSpacing4
 import com.plum.superheroapp.presentation.ui.theme.contentSpacing5
-import com.plum.superheroapp.presentation.ui.theme.contentSpacing6
 
 @Composable
 fun HeroesScreen(
@@ -88,7 +94,7 @@ fun HeroesScreen(
                 squad = state.squad,
                 heroes = state.heroes,
                 navigateToHeroDetails = { viewModel.add(HeroesEvent.SelectHero(it)) },
-                fetchHeroes = { viewModel.add(HeroesEvent.FetchHeroes(it)) }
+                fetchHeroes = { viewModel.add(HeroesEvent.FetchHeroes(it)) },
             )
         }
 
@@ -106,7 +112,7 @@ private fun HeroesContent(
     squad: List<Hero>,
     heroes: List<Hero>,
     navigateToHeroDetails: (Int) -> Unit,
-    fetchHeroes: (Int) -> Unit
+    fetchHeroes: (Int) -> Unit,
 ) {
 
     Scaffold(
@@ -152,22 +158,29 @@ private fun HeroesContent(
             Spacer(modifier = Modifier.height(contentSpacing5))
 
 
-            LazyColumn() {
-                heroes.forEachIndexed { index, hero ->
+            val listState = rememberSaveable(
+                saver = LazyListState.Saver
+            ) {
+                LazyListState()
+            }
 
-                    item {
+
+            LazyColumn(
+                state = listState
+            ) {
+                itemsIndexed(heroes) { index, hero ->
+
+                    key(hero) {
                         HeroItem(
                             hero = hero,
                             onHeroClicked = navigateToHeroDetails
                         )
+                    }
 
-                        LaunchedEffect(Unit) {
-                            if (index % 40 == 0) {
-                                val page = (index/40 + 1)
-                                fetchHeroes(page)
-                            }
-
-
+                    LaunchedEffect(index) {
+                        if (index % 40 == 0) {
+                            val page = (index/40 + 1)
+                            fetchHeroes(page)
                         }
                     }
                 }
@@ -297,8 +310,6 @@ private fun HeroImage(
             .size(size)
             .clip(CircleShape)
     )
-
-
 }
 
 
@@ -310,7 +321,7 @@ private fun HeroesScreenPreview() {
             squad = getSquad(),
             heroes = getHeroes(),
             navigateToHeroDetails = {},
-            fetchHeroes = {}
+            fetchHeroes = {},
         )
     }
 }

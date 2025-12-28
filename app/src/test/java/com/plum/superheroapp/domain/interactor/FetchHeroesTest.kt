@@ -29,8 +29,7 @@ class FetchHeroesTest {
 
     @Test
     fun execute_fetchHeroes() = runTest {
-        fetchHeroes.execute(Unit)
-
-        verify(heroRepository).fetchHeroes()
+        fetchHeroes.execute(FetchHeroes.Params(2))
+        verify(heroRepository).fetchHeroes(2)
     }
 }

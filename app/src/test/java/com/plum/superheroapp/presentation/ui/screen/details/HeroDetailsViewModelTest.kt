@@ -52,16 +52,16 @@ class HeroDetailsViewModelTest {
             .thenReturn(flowOf(Result.success(hero)))
 
 
-        whenever(updateHero.execute(any())).thenAnswer(InlineClassesAnswer { invocation ->
-            val params = invocation.getArgument<UpdateHero.Params>(0)
-            val hero = heroFlow.value.getOrThrow()
-            emitHero(
-               hero = hero.copy(isSquadMember = !params.hero.isSquadMember)
-            )
-
-            Result.success(Unit)
-
-        })
+//        whenever(updateHero.execute(any())).thenAnswer(InlineClassesAnswer { invocation ->
+//            val params = invocation.getArgument<UpdateHero.Params>(0)
+//            val hero = heroFlow.value.getOrThrow()
+//            emitHero(
+//               hero = hero.copy(isSquadMember = !params.hero.isSquadMember)
+//            )
+//
+//            Result.success(Unit)
+//
+//        })
     }
 
 

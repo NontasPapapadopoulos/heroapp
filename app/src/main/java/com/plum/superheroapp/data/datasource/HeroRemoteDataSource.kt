@@ -1,11 +1,7 @@
 package com.plum.superheroapp.data.datasource
 
-import androidx.paging.Pager
-import androidx.paging.PagingConfig
-import androidx.paging.PagingData
 import com.plum.superheroapp.data.network.HeroesApi
 import com.plum.superheroapp.data.network.entity.HeroNetworkEntity
-import com.plum.superheroapp.pagingSource.HeroPagingSource
 import retrofit2.HttpException
 import retrofit2.Response
 import javax.inject.Inject

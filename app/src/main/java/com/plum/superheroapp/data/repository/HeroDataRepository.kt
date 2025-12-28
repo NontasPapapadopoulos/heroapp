@@ -18,10 +18,7 @@ class HeroDataRepository @Inject constructor(
 ): HeroRepository {
 
     override suspend fun fetchHeroes(page: Int) {
-        val numberOfHeroes = localDataSource.numberOfHeroes()
-        val shouldFetchHeroes = page > numberOfHeroes / 50
-
-        if (shouldFetchHeroes) {
+        if (shouldFetchHeroes(page)) {
             val heroes = remoteDataSource.getHeroes(page)
                 .map { it.toData() }
             localDataSource.addHeroes(heroes)
@@ -54,6 +51,13 @@ class HeroDataRepository @Inject constructor(
 
     override suspend fun updateHero(hero: HeroDomainEntity) {
         localDataSource.updateHero(hero.toData())
+    }
+
+
+    private suspend fun shouldFetchHeroes(page: Int): Boolean {
+        val numberOfHeroes = localDataSource.numberOfHeroes()
+        val shouldFetchHeroes = page > numberOfHeroes / 50
+        return shouldFetchHeroes
     }
 
 }
