@@ -22,6 +22,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.SheetState
 import androidx.compose.material3.Text
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.material3.rememberStandardBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -104,7 +105,7 @@ private fun HeroDetailsContent(
     var showWarningMessage by remember {
         mutableStateOf(false)
     }
-    val sheetState = rememberStandardBottomSheetState()
+    val sheetState = rememberModalBottomSheetState()
 
     Column(
         modifier = Modifier.fillMaxSize()

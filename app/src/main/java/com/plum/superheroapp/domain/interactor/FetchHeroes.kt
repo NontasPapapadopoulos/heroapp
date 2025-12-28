@@ -10,10 +10,11 @@ import javax.inject.Inject
 class FetchHeroes @Inject constructor(
     private val heroRepository: HeroRepository,
     @IoDispatcher dispatcher: CoroutineDispatcher
-): SuspendUseCase<Unit, Unit>(dispatcher) {
+): SuspendUseCase<Unit, FetchHeroes.Params>(dispatcher) {
 
-    override suspend fun invoke(params: Unit) {
-        heroRepository.fetchHeroes()
+    override suspend fun invoke(params: Params) {
+        heroRepository.fetchHeroes(params.page)
     }
 
+    data class Params(val page: Int = 1)
 }

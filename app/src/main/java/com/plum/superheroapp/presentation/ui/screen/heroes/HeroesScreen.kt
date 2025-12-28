@@ -87,7 +87,8 @@ fun HeroesScreen(
             HeroesContent(
                 squad = state.squad,
                 heroes = state.heroes,
-                navigateToHeroDetails = { viewModel.add(HeroesEvent.SelectHero(it)) }
+                navigateToHeroDetails = { viewModel.add(HeroesEvent.SelectHero(it)) },
+                fetchHeroes = { viewModel.add(HeroesEvent.FetchHeroes(it)) }
             )
         }
 
@@ -104,7 +105,8 @@ fun HeroesScreen(
 private fun HeroesContent(
     squad: List<Hero>,
     heroes: List<Hero>,
-    navigateToHeroDetails: (Int) -> Unit
+    navigateToHeroDetails: (Int) -> Unit,
+    fetchHeroes: (Int) -> Unit
 ) {
 
     Scaffold(
@@ -151,13 +153,22 @@ private fun HeroesContent(
 
 
             LazyColumn() {
-                heroes.forEach { hero ->
+                heroes.forEachIndexed { index, hero ->
 
                     item {
                         HeroItem(
                             hero = hero,
                             onHeroClicked = navigateToHeroDetails
                         )
+
+                        LaunchedEffect(Unit) {
+                            if (index % 40 == 0) {
+                                val page = (index/40 + 1)
+                                fetchHeroes(page)
+                            }
+
+
+                        }
                     }
                 }
             }
@@ -298,7 +309,8 @@ private fun HeroesScreenPreview() {
         HeroesContent(
             squad = getSquad(),
             heroes = getHeroes(),
-            navigateToHeroDetails = {}
+            navigateToHeroDetails = {},
+            fetchHeroes = {}
         )
     }
 }

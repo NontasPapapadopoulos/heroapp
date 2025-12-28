@@ -12,6 +12,8 @@ interface HeroLocalDataSource {
     fun getHero(id: Int): Flow<HeroDataEntity>
     suspend fun updateHero(hero: HeroDataEntity)
     suspend fun addHeroes(heroes: List<HeroDataEntity>)
+
+    suspend fun numberOfHeroes(): Int
 }
 
 
@@ -40,6 +42,10 @@ class HeroLocalDataSourceImpl @Inject constructor(
 
     override suspend fun addHeroes(heroes: List<HeroDataEntity>) {
         heroDao.put(heroes)
+    }
+
+    override suspend fun numberOfHeroes(): Int {
+        return heroDao.numberOfHeroes()
     }
 
 

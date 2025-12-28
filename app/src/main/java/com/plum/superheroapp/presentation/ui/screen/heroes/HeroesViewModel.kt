@@ -38,7 +38,7 @@ open class HeroesViewModel @Inject constructor(
         }
         .catch { addError(it) }
 
-    val fetchHeroesFlow = fetchHeroes.executeAsFlow(Unit)
+    val fetchHeroesFlow = fetchHeroes.executeAsFlow(FetchHeroes.Params())
         .map { it.getOrThrow() }
         .catch { addError(it) }
 
@@ -64,6 +64,14 @@ open class HeroesViewModel @Inject constructor(
         on(HeroesEvent.SelectHero::class) {
             _navigationFlow.emit(NavigationTarget.HeroDetails(it.id))
         }
+
+        on(HeroesEvent.FetchHeroes::class) {
+            fetchHeroes.execute(FetchHeroes.Params(it.page))
+                .fold(
+                    onSuccess = {},
+                    onFailure = { addError(it) }
+                )
+        }
     }
 
 
@@ -73,6 +81,7 @@ open class HeroesViewModel @Inject constructor(
 
 sealed interface HeroesEvent {
     data class SelectHero(val id: Int): HeroesEvent
+    data class FetchHeroes(val page: Int): HeroesEvent
 }
 
 

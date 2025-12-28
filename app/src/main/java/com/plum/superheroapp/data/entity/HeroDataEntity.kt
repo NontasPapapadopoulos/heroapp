@@ -5,7 +5,7 @@ import androidx.room.PrimaryKey
 
 
 @Entity(
-    tableName = "hero",
+    tableName = "heroes",
 )
 data class HeroDataEntity(
     @PrimaryKey

@@ -17,10 +17,16 @@ class HeroDataRepository @Inject constructor(
     private val remoteDataSource: HeroRemoteDataSource
 ): HeroRepository {
 
-    override suspend fun fetchHeroes() {
-        val heroes = remoteDataSource.getHeroes()
-            .map { it.toData() }
-        localDataSource.addHeroes(heroes)
+    override suspend fun fetchHeroes(page: Int) {
+        val numberOfHeroes = localDataSource.numberOfHeroes()
+        val shouldFetchHeroes = page > numberOfHeroes / 50
+
+        if (shouldFetchHeroes) {
+            val heroes = remoteDataSource.getHeroes(page)
+                .map { it.toData() }
+            localDataSource.addHeroes(heroes)
+        }
+
     }
 
     override fun getHeroes(): Flow<List<HeroDomainEntity>> {
