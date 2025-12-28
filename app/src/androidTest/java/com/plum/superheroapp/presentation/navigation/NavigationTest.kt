@@ -9,10 +9,9 @@ import androidx.navigation.compose.ComposeNavigator
 import androidx.navigation.testing.TestNavHostController
 import com.plum.superheroapp.presentation.HiltComponentActivity
 import com.plum.superheroapp.presentation.SuperHeroAndroidTest
+import com.plum.superheroapp.presentation.ui.screen.details.HeroDetailsScreenConstants.Companion.BACK_BUTTON
 import com.plum.superheroapp.presentation.ui.screen.heroes.HeroesScreenConstants.Companion.HERO
-import com.plum.superheroapp.presentation.ui.screen.heroes.NavigationTarget
 import dagger.hilt.android.testing.HiltAndroidTest
-import dagger.hilt.android.testing.HiltTestApplication
 import junit.framework.TestCase.assertTrue
 import org.junit.Before
 import org.junit.Rule
@@ -43,9 +42,23 @@ class NavigationTest: SuperHeroAndroidTest() {
 
     @Test
     fun navigateToHeroDetailsScreenTest() {
-        composeTestRule.onNodeWithTag(HERO+0 ).performClick()
+        composeTestRule.onNodeWithTag(HERO+0)
+            .performClick()
+
         assertTrue(navController.currentBackStackEntry?.destination?.hasRoute<HeroDetailsScreen>() ?: false)
 
     }
+
+
+    @Test
+    fun navigateToHeroDetailsScreenAndGoBackToHeroesScreen() {
+        composeTestRule.onNodeWithTag(HERO+0 )
+            .performClick()
+        composeTestRule.onNodeWithTag(BACK_BUTTON)
+            .performClick()
+
+        assertTrue(navController.currentBackStackEntry?.destination?.hasRoute<HeroesScreen>() ?: false)
+    }
+
 
 }

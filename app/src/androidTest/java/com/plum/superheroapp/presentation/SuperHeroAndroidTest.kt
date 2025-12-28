@@ -1,5 +1,6 @@
 package com.plum.superheroapp.presentation
 
+import androidx.room.Room
 import com.plum.superheroapp.data.cache.AppDatabase
 import com.plum.superheroapp.data.mapper.toData
 import dagger.hilt.android.testing.HiltAndroidRule
@@ -21,9 +22,9 @@ abstract class SuperHeroAndroidTest {
 
     @Before
     open fun setUp() = runBlocking {
+        hiltRule.inject()
         db.clearAllTables()
         populateDb()
-
     }
 
 
@@ -37,7 +38,7 @@ abstract class SuperHeroAndroidTest {
             .map {
                 DummyEntities.hero.copy(
                     id = it,
-                    isSquadMember = it%2==0
+                    isSquadMember = it > 6
                 ) }
             .map { it.toData() }
 

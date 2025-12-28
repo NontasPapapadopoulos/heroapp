@@ -46,6 +46,7 @@ import coil.compose.AsyncImage
 import com.plum.superheroapp.R
 import com.plum.superheroapp.domain.entity.HeroDomainEntity
 import com.plum.superheroapp.presentation.ui.screen.composables.LoadingBox
+import com.plum.superheroapp.presentation.ui.screen.details.HeroDetailsScreenConstants.Companion.BACK_BUTTON
 import com.plum.superheroapp.presentation.ui.screen.details.HeroDetailsScreenConstants.Companion.FIRE_BUTTON
 import com.plum.superheroapp.presentation.ui.screen.details.HeroDetailsScreenConstants.Companion.MESSAGE_BOTTOM_SHEET
 import com.plum.superheroapp.presentation.ui.screen.details.HeroDetailsScreenConstants.Companion.UPDATE_SQUAD_MEMBER_BUTTON
@@ -123,9 +124,11 @@ private fun HeroDetailsContent(
 
             BackButton(
                 onClick = navigateBack,
-                modifier = Modifier.align(TopStart)
-                .padding(top = contentSpacing6, start = contentSpacing4)
-                .size(contentSize12))
+                modifier = Modifier
+                    .align(TopStart)
+                    .padding(top = contentSpacing6, start = contentSpacing4)
+                    .size(contentSize12)
+                    .testTag(BACK_BUTTON))
         }
 
 
@@ -346,5 +349,7 @@ class HeroDetailsScreenConstants private constructor() {
         const val MESSAGE_BOTTOM_SHEET = "message_bottom_sheet"
 
         const val  FIRE_BUTTON = "fire_button"
+
+        const val BACK_BUTTON = "back_button"
     }
 }

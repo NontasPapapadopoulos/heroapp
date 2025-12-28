@@ -42,8 +42,6 @@ class HeroDetailsViewModelTest {
     private val savedStateHandle: SavedStateHandle =
         SavedStateHandle(mapOf(NavigationArgument.HeroId.param to 1))
 
-    private val heroFlow: MutableStateFlow<Result<HeroDomainEntity>> =
-        MutableStateFlow(Result.success(hero))
 
 
     @Before
@@ -51,22 +49,6 @@ class HeroDetailsViewModelTest {
         whenever(getHero.execute(any()))
             .thenReturn(flowOf(Result.success(hero)))
 
-
-//        whenever(updateHero.execute(any())).thenAnswer(InlineClassesAnswer { invocation ->
-//            val params = invocation.getArgument<UpdateHero.Params>(0)
-//            val hero = heroFlow.value.getOrThrow()
-//            emitHero(
-//               hero = hero.copy(isSquadMember = !params.hero.isSquadMember)
-//            )
-//
-//            Result.success(Unit)
-//
-//        })
-    }
-
-
-    private fun emitHero(hero: HeroDomainEntity) = runBlocking {
-        heroFlow.emit(Result.success(hero))
     }
 
 
@@ -85,29 +67,6 @@ class HeroDetailsViewModelTest {
             )
         }
     }
-
-
-//    @Test
-//    fun onUpdateSquadMember_changesIsSquadMember() = runTest {
-//        initViewModel()
-//
-//        onEvents(
-//            viewModel,
-//            HeroDetailsEvent.UpdateSquadMember(hero)
-//        ) { collectedStates ->
-//            assertEquals(
-//                listOf(
-//                    HeroDetailsState.Loading,
-//                    defaultContent,
-//                    defaultContent.copy(
-//                        hero = hero.copy(isSquadMember = !hero.isSquadMember)
-//                    )
-//                ),
-//                collectedStates
-//            )
-//        }
-//    }
-
 
 
     private fun initViewModel() {
