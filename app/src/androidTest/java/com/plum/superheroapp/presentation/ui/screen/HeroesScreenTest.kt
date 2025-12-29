@@ -10,6 +10,7 @@ import com.plum.superheroapp.presentation.ui.screen.heroes.HeroesEvent
 import com.plum.superheroapp.presentation.ui.screen.heroes.HeroesScreen
 import com.plum.superheroapp.presentation.ui.screen.heroes.HeroesScreenConstants.Companion.HERO
 import com.plum.superheroapp.presentation.ui.screen.heroes.HeroesScreenConstants.Companion.SQUAD
+import com.plum.superheroapp.presentation.ui.screen.heroes.HeroesScreenConstants.Companion.RETRY_BUTTON
 import com.plum.superheroapp.presentation.ui.screen.heroes.HeroesState
 import com.plum.superheroapp.presentation.ui.screen.heroes.HeroesViewModel
 import com.plum.superheroapp.presentation.ui.screen.heroes.toHeroItems
@@ -83,18 +84,58 @@ class HeroesScreenTest {
             }
         }
 
-        val id = 1
-        composeTestRule.onNodeWithTag(SQUAD+1).performClick()
+        val id = 11
+        composeTestRule.onNodeWithTag(SQUAD+id).performClick()
 
         verify(viewModel).add(HeroesEvent.SelectHero(id))
+    }
+
+
+    @Test
+    fun onErrorState_whenRetryButtonIsClicked_addsFetchHeroes() {
+        whenever(viewModel.uiState)
+            .thenReturn(MutableStateFlow(HeroesState.Error))
+
+        composeTestRule.setContent {
+            SuperheroappTheme {
+                HeroesScreen(
+                    viewModel = viewModel,
+                    navigateToHeroDetailsScreen = {}
+                )
+            }
+        }
+
+        composeTestRule.onNodeWithTag(RETRY_BUTTON).performClick()
+
+        verify(viewModel).add(HeroesEvent.FetchHeroes(1))
+        verify(viewModel).add(HeroesEvent.ShowLoading)
+    }
+
+    @Test
+    fun onErrorState_whenRetryButtonIsClicked_addsShowLoading() {
+        whenever(viewModel.uiState)
+            .thenReturn(MutableStateFlow(HeroesState.Error))
+
+        composeTestRule.setContent {
+            SuperheroappTheme {
+                HeroesScreen(
+                    viewModel = viewModel,
+                    navigateToHeroDetailsScreen = {}
+                )
+            }
+        }
+
+        composeTestRule.onNodeWithTag(RETRY_BUTTON).performClick()
+
+        verify(viewModel).add(HeroesEvent.ShowLoading)
     }
 
 
 
     companion object {
         val defaultContent = HeroesState.Content(
-            heroes = listOf(DummyEntities.hero.copy(id = 0)).toHeroItems(), //(0..10).map { DummyEntities.hero.copy(id = it) }.toHeroItems(),
-            squad = listOf(DummyEntities.hero.copy(id = 1)).toHeroItems() //(11..15).map { DummyEntities.hero.copy(id = it) }.toHeroItems()
+            heroes = (0..10).map { DummyEntities.hero.copy(id = it) }.toHeroItems(),
+            squad = (11..15).map { DummyEntities.hero.copy(id = it) }.toHeroItems()
         )
     }
 }

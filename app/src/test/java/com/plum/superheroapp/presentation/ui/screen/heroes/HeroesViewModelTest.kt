@@ -8,6 +8,7 @@ import com.plum.superheroapp.domain.interactor.hero
 import com.plum.superheroapp.presentation.MainDispatcherRule
 import com.plum.superheroapp.presentation.onEvents
 import junit.framework.TestCase
+import junit.framework.TestCase.assertEquals
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.runTest
 import org.junit.Before
@@ -16,7 +17,11 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.Mock
 import org.mockito.junit.MockitoJUnitRunner
+import org.mockito.kotlin.any
+import org.mockito.kotlin.doAnswer
+import org.mockito.kotlin.doThrow
 import org.mockito.kotlin.whenever
+import java.net.UnknownHostException
 
 @RunWith(MockitoJUnitRunner::class)
 class HeroesViewModelTest {
@@ -37,8 +42,7 @@ class HeroesViewModelTest {
 
     @Before
     fun setUp() = runTest {
-        whenever(getHeroes.execute(Unit))
-            .thenReturn(flowOf(Result.success(heroes)))
+
 
         whenever(getSquad.execute(Unit))
             .thenReturn(flowOf(Result.success(squad)))
@@ -48,11 +52,18 @@ class HeroesViewModelTest {
 
     @Test
     fun onFlowStart_returnsHeroesAndSquad() = runTest {
+        whenever(getHeroes.execute(Unit))
+            .thenReturn(flowOf(Result.success(heroes)))
+
+        whenever(getSquad.execute(Unit))
+            .thenReturn(flowOf(Result.success(squad)))
+
         initViewModel()
+
         onEvents(
             viewModel
         ) { collectedStates ->
-            TestCase.assertEquals(
+            assertEquals(
                 listOf(
                     HeroesState.Loading,
                     defaultContent,
@@ -65,6 +76,33 @@ class HeroesViewModelTest {
             )
 
         }
+    }
+
+    @Test
+    fun onFlowStart_throwsExceptionAndShowsErrorState() = runTest {
+        whenever(fetchHeroes.execute(any()))
+            .doAnswer { throw UnknownHostException() }
+
+        whenever(getHeroes.execute(Unit))
+            .thenReturn(flowOf(Result.success(listOf())))
+
+
+        initViewModel()
+
+        onEvents(
+            viewModel
+        ) { collectedStates ->
+            assertEquals(
+                listOf(
+                    HeroesState.Loading,
+                    defaultContent,
+                    HeroesState.Error,
+                ),
+                collectedStates
+            )
+
+        }
+
     }
 
     private fun initViewModel() {

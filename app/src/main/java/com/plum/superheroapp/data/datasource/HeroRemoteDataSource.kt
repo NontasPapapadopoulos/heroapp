@@ -22,20 +22,7 @@ class HeroRemoteDataSourceImpl @Inject constructor(
 
     }
 
-//    override suspend fun getHeroes(page: Int): Pager<Int, HeroNetworkEntity> {
-//        return Pager(
-//            config = PagingConfig(
-//                pageSize = 50,
-//                prefetchDistance = 1,
-//                enablePlaceholders = false,
-//            ),
-//            pagingSourceFactory = {
-//                HeroPagingSource(
-//                    heroesApi
-//                )
-//            }
-//        )
-//    }
+
 
 }
 
@@ -56,11 +43,15 @@ suspend inline fun <T> handleApiCall(
         return response.body()
             ?: throw EmptyBodyException()
 
-    } catch (e: HttpException) {
+    }
+    catch (e: HttpException) {
         throw ApiErrorResponse(
             code = e.code(),
             message = e.message()
         )
+    }
+    catch (e: Exception) {
+        throw e
     }
 }
 

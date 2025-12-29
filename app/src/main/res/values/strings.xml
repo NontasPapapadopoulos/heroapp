@@ -11,4 +11,8 @@
     <string name="allies">Allies:</string>
     <string name="enemies">Enemies:</string>
     <string name="are_you_sure">Are you sure you want to fire %s ?</string>
+    <string name="internet_off">You don\'t have internet connection</string>
+    <string name="retry">Retry</string>
+    <string name="open_wifi">Open Wifi</string>
+    <string name="open_roaming_data">Open Roaming Data</string>
 </resources>

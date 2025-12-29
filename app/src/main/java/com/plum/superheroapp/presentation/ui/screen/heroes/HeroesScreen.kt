@@ -1,7 +1,12 @@
 package com.plum.superheroapp.presentation.ui.screen.heroes
 
+import android.content.Intent
+import android.provider.Settings.ACTION_DATA_ROAMING_SETTINGS
+import android.provider.Settings.ACTION_WIFI_SETTINGS
 import android.widget.Toast
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -15,8 +20,8 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.itemsIndexed
-import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
@@ -28,13 +33,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.painter.ColorPainter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
@@ -48,12 +51,13 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.AsyncImage
 import com.plum.superheroapp.R
+import com.plum.superheroapp.presentation.exception.errorStringResource
 import com.plum.superheroapp.presentation.ui.screen.composables.LoadingBox
 import com.plum.superheroapp.presentation.ui.screen.heroes.HeroesScreenConstants.Companion.HERO
+import com.plum.superheroapp.presentation.ui.screen.heroes.HeroesScreenConstants.Companion.RETRY_BUTTON
 import com.plum.superheroapp.presentation.ui.screen.heroes.HeroesScreenConstants.Companion.SQUAD
 import com.plum.superheroapp.presentation.ui.theme.SuperheroappTheme
 import com.plum.superheroapp.presentation.ui.theme.contentSize10
-import com.plum.superheroapp.presentation.ui.theme.contentSize15
 import com.plum.superheroapp.presentation.ui.theme.contentSize16
 import com.plum.superheroapp.presentation.ui.theme.contentSize4
 import com.plum.superheroapp.presentation.ui.theme.contentSpacing1
@@ -70,10 +74,9 @@ fun HeroesScreen(
     val context = LocalContext.current
     LaunchedEffect(Unit) {
         viewModel.errorFlow.collect { error ->
-            println("error:" + error.message)
             Toast.makeText(
                 context,
-                error.message,
+                context.resources.errorStringResource(error),
                 Toast.LENGTH_SHORT
             ).show()
         }
@@ -101,6 +104,13 @@ fun HeroesScreen(
 
         HeroesState.Loading -> {
             LoadingBox()
+        }
+
+        HeroesState.Error -> {
+            ErrorState(
+                fetchHeroes = { viewModel.add(HeroesEvent.FetchHeroes(it)) },
+                showLoading = { viewModel.add(HeroesEvent.ShowLoading) }
+            )
         }
     }
 
@@ -309,10 +319,76 @@ private fun HeroImage(
         model = url,
         contentDescription = null,
         contentScale = ContentScale.Crop,
+        placeholder = ColorPainter(MaterialTheme.colorScheme.onSurfaceVariant),
+        error = ColorPainter(MaterialTheme.colorScheme.onSurfaceVariant),
         modifier = Modifier
             .size(size)
             .clip(CircleShape)
     )
+}
+
+
+@Composable
+private fun ErrorState(
+    fetchHeroes: (Int) -> Unit,
+    showLoading: () -> Unit,
+) {
+    Column(
+        modifier = Modifier.fillMaxSize(),
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Text(
+            text = stringResource(R.string.internet_off),
+        )
+
+        Spacer(modifier = Modifier.height(contentSpacing4))
+        val context = LocalContext.current
+
+        Row {
+            Button(
+                onClick = {
+                    context.startActivity(
+                        Intent(ACTION_WIFI_SETTINGS)
+                    )
+                }
+            ) {
+                Text(
+                    text = stringResource(R.string.open_wifi)
+                )
+            }
+
+            Spacer(modifier = Modifier.width(contentSpacing1))
+
+            Button(
+                onClick = {
+                    context.startActivity(
+                        Intent(ACTION_DATA_ROAMING_SETTINGS)
+                    )
+                }
+            ) {
+                Text(
+                    text = stringResource(R.string.open_roaming_data)
+                )
+            }
+
+        }
+
+
+        Spacer(modifier = Modifier.height(contentSpacing4))
+
+        Button(
+            onClick = {
+                showLoading()
+                fetchHeroes(1)
+            },
+            modifier = Modifier.testTag(RETRY_BUTTON)
+        ) {
+            Text(
+                text = stringResource(R.string.retry)
+            )
+        }
+    }
 }
 
 
@@ -366,5 +442,7 @@ class HeroesScreenConstants private constructor() {
     companion object {
         const val HERO = "hero"
         const val SQUAD = "squad"
+
+        const val RETRY_BUTTON = "retry_button"
     }
 }
